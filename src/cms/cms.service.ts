@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, MethodNotAllowedException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AdminEntity } from 'src/Entity/admin.entity';
 import { UserEntity } from 'src/Entity/user.entity';
@@ -253,8 +253,15 @@ export class CmsService {
     const blogger = await this.userrepo.findOne({where:{id:userid}})
     if (!blogger) throw new NotFoundException('user not found')
 
-    const blog = await this.blogrepo.findOne({where:{id:id}})
+    const blog = await this.blogrepo.findOne({ where: { id: id },relations: ['blogger', 'comments_made', 'comments_made.made_by', 'comments_made.replies', 'comments_made.replies.replied_by'] });
     if (!blog) throw new NotFoundException('post not found')
+
+
+  //  // Check if the user deleting the post is the owner
+  if (blogger.id !== blog.blogger.id) {
+    throw new UnauthorizedException('You are not authorized to delete a post you did not create');
+  }
+
 
     await this.blogrepo.remove(blog)
 

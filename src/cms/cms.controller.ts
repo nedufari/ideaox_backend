@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query, Req, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
 import { CmsService } from "./cms.service";
 import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { MakeblogPostDto } from "./cms.dto";
@@ -47,8 +47,11 @@ export class CmsController{
 
    
     @Delete('delete-idea/:ideaId/:userId')
-    async DeleteIdea(@Param('ideaId')ideaid:number, @Param('userId')userid:number):Promise<{msg:string}>{
+    async DeleteIdea(@Param('ideaId')ideaid:number, @Param('userId')userid:number,@Req()req):Promise<{msg:string}>{
         try {
+            const userfromreq = req.user.id
+            console.log(req.user)
+            //if (userfromreq !== userid) throw new ForbiddenException('you can only delete an idea you created')
             return await this.cmsService.deleteIdea(ideaid,userid)
         } catch (error) {
             throw error

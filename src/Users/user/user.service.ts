@@ -92,7 +92,7 @@ async getProfile(userId: number): Promise<IUser> {
     });
     if (checkemail)
       throw new HttpException(
-        'this super admin already exists',
+        'this user already exists',
         HttpStatus.FOUND,
       );
 
